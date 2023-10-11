@@ -40,8 +40,6 @@ class GoogleCloudStorageService extends AbstractFileService {
       }
     );
 
-    console.debug("uploadResponse", uploadResponse);
-
     return {
       url: uploadResponse[0].publicUrl(),
       key: uploadResponse[0].name,
@@ -51,7 +49,7 @@ class GoogleCloudStorageService extends AbstractFileService {
   async uploadProtected(
     fileData: Express.Multer.File
   ): Promise<FileServiceUploadResult> {
-    return await this.upload(fileData);
+    throw new Error("Method not implemented.");
   }
 
   async delete(fileData: DeleteFileType): Promise<void> {
