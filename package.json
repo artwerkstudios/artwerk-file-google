@@ -1,8 +1,8 @@
 {
   "name": "artwerk-file-google",
-  "version": "0.0.2",
-  "description": "A starter for Medusa projects.",
-  "author": "Sebastian Rindom <skrindom@gmail.com>",
+  "version": "0.0.3",
+  "description": "Google cloud storage file upload for medusajs.",
+  "author": "Robin Rehbein <me@robinrehbein.de>",
   "license": "MIT",
   "keywords": [
     "sqlite",
@@ -18,7 +18,6 @@
     "prepare": "cross-env NODE_ENV=production npm run build",
     "watch": "cross-env tsc --watch",
     "test": "cross-env jest",
-    "seed": "cross-env medusa seed -f ./data/seed.json",
     "start": "cross-env npm run build && medusa start",
     "start:custom": "cross-env npm run build && node --preserve-symlinks --trace-warnings index.js",
     "dev": "cross-env npm run build:server && medusa develop"
