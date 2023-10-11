@@ -15,11 +15,11 @@ class GoogleCloudStorageService extends AbstractFileService {
   private _storage: Storage;
   private _bucket: Bucket;
 
-  constructor(container, options) {
+  constructor(container, pluginOptions) {
     super(container);
-    this._publicBucket = options.publicBucket;
-    this._privateBucket = options.privateBucket;
-    this._keyFileName = options.keyFileName;
+    this._publicBucket = pluginOptions.publicBucket;
+    this._privateBucket = pluginOptions.privateBucket;
+    this._keyFileName = pluginOptions.keyFileName;
 
     this._storage = new Storage({
       keyFilename: this._keyFileName,
@@ -30,15 +30,17 @@ class GoogleCloudStorageService extends AbstractFileService {
   public async upload(
     fileData: Express.Multer.File
   ): Promise<FileServiceUploadResult> {
+    console.debug("fileData for upload", fileData);
+
     const uploadResponse: UploadResponse = await this._bucket.upload(
       fileData.path,
       {
-        gzip: true,
+        // gzip: true,
         destination: fileData.originalname,
       }
     );
 
-    console.log("uploadResponse", uploadResponse);
+    console.debug("uploadResponse", uploadResponse);
 
     return {
       url: uploadResponse[0].publicUrl(),
@@ -49,7 +51,7 @@ class GoogleCloudStorageService extends AbstractFileService {
   async uploadProtected(
     fileData: Express.Multer.File
   ): Promise<FileServiceUploadResult> {
-    throw new Error("Method not implemented.");
+    return await this.upload(fileData);
   }
 
   async delete(fileData: DeleteFileType): Promise<void> {
