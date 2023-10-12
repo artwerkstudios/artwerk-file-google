@@ -136,7 +136,7 @@ class GoogleCloudStorageService extends AbstractFileService {
 
   /**
    * Gets the download stream.
-   * @param {GetUploadedFileType} param0 - The get uploaded file type parameters.
+   * @param {GetUploadedFileType} param0 - { fileKey, isPrivate = true } - The get uploaded file type parameters.
    * @returns {Promise<NodeJS.ReadableStream>} A promise that resolves with the download stream.
    * @memberof GoogleCloudStorageService
    */
@@ -161,7 +161,7 @@ class GoogleCloudStorageService extends AbstractFileService {
 
   /**
    * Gets the presigned download URL.
-   * @param {GetUploadedFileType} param0 - The get uploaded file type parameters.
+   * @param {GetUploadedFileType} param0 - { fileKey, isPrivate = true } - The get uploaded file type parameters.
    * @returns {Promise<string>} A promise that resolves with the presigned download URL.
    * @memberof GoogleCloudStorageService
    */
