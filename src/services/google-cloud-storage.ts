@@ -7,14 +7,23 @@ import {
   UploadStreamDescriptorType,
 } from "@medusajs/types";
 import { Bucket, Storage, UploadResponse } from "@google-cloud/storage";
-import stream, { Stream } from "stream";
 
+/**
+ * A class representing a Google Cloud Storage service.
+ * @extends AbstractFileService
+ */
 class GoogleCloudStorageService extends AbstractFileService {
   private _keyFileName: string;
   private _storage: Storage;
   private _publicBucket: Bucket;
   private _privateBucket: Bucket;
 
+  /**
+   * Creates an instance of GoogleCloudStorageService.
+   * @param {any} container - The container.
+   * @param {any} pluginOptions - The plugin options.
+   * @memberof GoogleCloudStorageService
+   */
   constructor(container, pluginOptions) {
     super(container);
     this._keyFileName = pluginOptions.keyFileName;
@@ -26,6 +35,12 @@ class GoogleCloudStorageService extends AbstractFileService {
     this._privateBucket = this._storage.bucket(pluginOptions.privateBucket);
   }
 
+  /**
+   * Uploads a file to the public bucket.
+   * @param {Express.Multer.File} fileData - The file data.
+   * @returns {Promise<FileServiceUploadResult>} A promise that resolves with the upload result.
+   * @memberof GoogleCloudStorageService
+   */
   public async upload(
     fileData: Express.Multer.File
   ): Promise<FileServiceUploadResult> {
@@ -47,6 +62,12 @@ class GoogleCloudStorageService extends AbstractFileService {
     }
   }
 
+  /**
+   * Uploads a file to the private bucket.
+   * @param {Express.Multer.File} fileData - The file data.
+   * @returns {Promise<FileServiceUploadResult>} A promise that resolves with the upload result.
+   * @memberof GoogleCloudStorageService
+   */
   async uploadProtected(
     fileData: Express.Multer.File
   ): Promise<FileServiceUploadResult> {
@@ -68,6 +89,12 @@ class GoogleCloudStorageService extends AbstractFileService {
     }
   }
 
+  /**
+   * Deletes a file from the public bucket.
+   * @param {DeleteFileType} fileData - The file data.
+   * @returns {Promise<void>} A promise that resolves when the file is deleted.
+   * @memberof GoogleCloudStorageService
+   */
   async delete(fileData: DeleteFileType): Promise<void> {
     try {
       const file = this._publicBucket.file(fileData.fileKey);
@@ -77,6 +104,12 @@ class GoogleCloudStorageService extends AbstractFileService {
     }
   }
 
+  /**
+   * Gets the upload stream descriptor.
+   * @param {UploadStreamDescriptorType} param0 - { name, ext, isPrivate = true } - The upload stream descriptor parameters.
+   * @returns {Promise<FileServiceGetUploadStreamResult>} A promise that resolves with the upload stream descriptor result.
+   * @memberof GoogleCloudStorageService
+   */
   async getUploadStreamDescriptor({
     name,
     ext,
@@ -101,6 +134,12 @@ class GoogleCloudStorageService extends AbstractFileService {
     }
   }
 
+  /**
+   * Gets the download stream.
+   * @param {GetUploadedFileType} param0 - The get uploaded file type parameters.
+   * @returns {Promise<NodeJS.ReadableStream>} A promise that resolves with the download stream.
+   * @memberof GoogleCloudStorageService
+   */
   async getDownloadStream({
     fileKey,
     isPrivate = true,
@@ -108,6 +147,10 @@ class GoogleCloudStorageService extends AbstractFileService {
     try {
       const bucket = isPrivate ? this._privateBucket : this._publicBucket;
       const file = bucket.file(`${fileKey}`);
+
+      // ToDo check requirement of node stream package
+      // const passthroughStream = new stream.PassThrough()
+
       const stream = file.createReadStream();
 
       return stream;
@@ -116,6 +159,12 @@ class GoogleCloudStorageService extends AbstractFileService {
     }
   }
 
+  /**
+   * Gets the presigned download URL.
+   * @param {GetUploadedFileType} param0 - The get uploaded file type parameters.
+   * @returns {Promise<string>} A promise that resolves with the presigned download URL.
+   * @memberof GoogleCloudStorageService
+   */
   async getPresignedDownloadUrl({
     fileKey,
     isPrivate = true,
