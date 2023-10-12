@@ -8,7 +8,7 @@
   </a>
 </p>
 <h1 align="center">
-  artwerk studios UG Google Cloud Storage plugin in for Medusa
+  Google Cloud Storage plugin for Medusa by artwerk studios UG 
 </h1>
 
 <h4 align="center">

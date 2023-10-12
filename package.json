@@ -5,11 +5,13 @@
   "author": "artwerk studios UG",
   "license": "MIT",
   "keywords": [
-    "sqlite",
-    "postgres",
+    "google",
+    "storage",
     "typescript",
     "ecommerce",
     "headless",
+    "cloud",
+    "bucket",
     "medusa"
   ],
   "scripts": {
