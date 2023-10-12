@@ -6,7 +6,14 @@ import {
   GetUploadedFileType,
   UploadStreamDescriptorType,
 } from "@medusajs/types";
-import { Bucket, Storage, UploadResponse } from "@google-cloud/storage";
+import {
+  Bucket,
+  Storage,
+  UploadResponse,
+  GetSignedUrlConfig,
+  File,
+} from "@google-cloud/storage";
+import internal, { PassThrough } from "stream";
 
 /**
  * A class representing a Google Cloud Storage service.
@@ -117,17 +124,35 @@ class GoogleCloudStorageService extends AbstractFileService {
   }: UploadStreamDescriptorType): Promise<FileServiceGetUploadStreamResult> {
     try {
       const bucket = isPrivate ? this._privateBucket : this._publicBucket;
-      const file = bucket.file(`${name}.${ext}`);
-      const stream = file.createWriteStream({
-        resumable: false,
-        gzip: true,
-      });
+      const fileKey: string = `${name}.${ext}`;
+      const file = bucket.file(fileKey);
+      const passthroughStream = new PassThrough();
+      const promise: Promise<FileServiceUploadResult> = new Promise(
+        (resolve, reject) => {
+          passthroughStream
+            .pipe(
+              file.createWriteStream({
+                resumable: false,
+                gzip: true,
+              })
+            )
+            .on("finish", () => {
+              resolve({
+                url: file.publicUrl(),
+                key: fileKey,
+              });
+            })
+            .on("error", (error) => {
+              reject(error);
+            });
+        }
+      );
 
       return {
-        stream,
-        promise: Promise.resolve(),
+        writeStream: passthroughStream,
+        promise,
         url: file.publicUrl(),
-        fileKey: `${name}.${ext}`,
+        fileKey,
       };
     } catch (error) {
       return Promise.reject(error);
@@ -145,13 +170,11 @@ class GoogleCloudStorageService extends AbstractFileService {
     isPrivate = true,
   }: GetUploadedFileType): Promise<NodeJS.ReadableStream> {
     try {
-      const bucket = isPrivate ? this._privateBucket : this._publicBucket;
-      const file = bucket.file(`${fileKey}`);
-
-      // ToDo check requirement of node stream package
-      // const passthroughStream = new stream.PassThrough()
-
-      const stream = file.createReadStream();
+      const bucket: Bucket = isPrivate
+        ? this._privateBucket
+        : this._publicBucket;
+      const file: File = bucket.file(`${fileKey}`);
+      const stream: internal.Readable = file.createReadStream();
 
       return stream;
     } catch (error) {
@@ -170,15 +193,16 @@ class GoogleCloudStorageService extends AbstractFileService {
     isPrivate = true,
   }: GetUploadedFileType): Promise<string> {
     try {
-      const bucket = isPrivate ? this._privateBucket : this._publicBucket;
-      const file = bucket.file(`${fileKey}`);
-
-      return (
-        await file.getSignedUrl({
-          action: "read",
-          expires: Date.now() + 1000 * 60 * 60 * 24 * 7, // 7 days
-        })
-      ).toString();
+      const bucket: Bucket = isPrivate
+        ? this._privateBucket
+        : this._publicBucket;
+      const file: File = bucket.file(`${fileKey}`);
+      const options: GetSignedUrlConfig = {
+        version: "v4",
+        action: "read",
+        expires: Date.now() + 1000 * 60 * 60 * 24 * 7, // 7 days
+      };
+      return (await file.getSignedUrl(options)).toString();
     } catch (error) {
       return Promise.reject(error);
     }
